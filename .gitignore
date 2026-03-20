@@ -205,3 +205,27 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# --- RAG & AI Specifics ---
+.env                # Critical: Keep your OpenAI/Pinecone keys private
+.env.local
+.python-version
+*.csv               # Ignore raw data if it's large (store in cloud instead)
+*.jsonl             # Often used for LLM training/fine-tuning data
+
+# --- Local Vector Databases ---
+# If you use ChromaDB or a local FAISS index, these folders get huge
+db/
+chroma/
+storage/
+*.index             # FAISS index files
+*.pkl               # Pickled embeddings/dataframes
+
+# --- OS Specifics ---
+.DS_Store           # For Mac users on the team
+Thumbs.db           # For Windows users on the team
+
+# --- PDF/Office Docs (The "Sources") ---
+# If you have a folder full of UWindsor PDFs to read, don't push them all
+/data/raw/
+/data/processed/

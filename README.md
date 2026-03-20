@@ -71,7 +71,3 @@ To ensure the **Data** and **Retrieval** parts connect, all vectors must use the
 * `prof_name`: Full name of the instructor.
 * `course_code`: e.g., COMP-3710.
 * `review_text`: The raw student feedback.
-
----
-
-**Would you like me to generate the "Metadata Contract" table with the exact data types and examples so your team can start coding their scripts?**

@@ -54,7 +54,7 @@ def run_verified_ingestion():
     
     scraper = UWindsorScraper()
     
-    with open('data/cs_professors.json', 'r') as f:
+    with open('data/professors.json', 'r') as f:
         target_profs = json.load(f)
     
     all_texts = []

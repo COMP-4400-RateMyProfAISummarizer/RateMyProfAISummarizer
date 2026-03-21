@@ -207,6 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 # --- RAG & AI Specifics ---
+*.venv               # Virtual environment (if you create one in the project folder)
 .env                # Critical: Keep your OpenAI/Pinecone keys private
 .env.local
 .python-version

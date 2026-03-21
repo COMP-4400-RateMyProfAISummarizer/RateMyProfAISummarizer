@@ -17,5 +17,6 @@ jobs:
       - name: Run Retriever Test
         env:
           CLOUD_API_KEY: ${{ secrets.CLOUD_API_KEY }}
+          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python core/retriever.py --test_mode

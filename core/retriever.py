@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
@@ -72,5 +73,15 @@ def analyze_professor(prof_name):
     print(response.content)
 
 if __name__ == "__main__":
-    name = input("\n🔍 Enter Professor Name (e.g., Ziad Kobti): ")
+    # Check if we are running in a "test mode" or automated environment
+    if "--test_mode" in sys.argv:
+        print("🤖 Running in Test Mode: Using default professor 'Ziad Kobti'")
+        name = "Ziad Kobti"
+    else:
+        try:
+            name = input("\n🔍 Enter Professor Name (e.g., Ziad Kobti): ")
+        except EOFError:
+            # Fallback if someone forgets the flag on a server
+            name = "Ziad Kobti"
+
     analyze_professor(name)

@@ -223,6 +223,7 @@ storage/
 *.pkl               # Pickled embeddings/dataframes
 
 # --- OS Specifics ---
+**/.DS_Store
 .DS_Store           # For Mac users on the team
 Thumbs.db           # For Windows users on the team
 

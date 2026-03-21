@@ -1,0 +1,16 @@
+# --- Core RAG Framework ---
+langchain
+langchain-community
+langchain-ollama      # For local Llama
+langchain-openai      # For cloud Llama/GPT
+langchain-pinecone    # Vector DB connection
+
+# --- Vector Database & Embeddings ---
+pinecone-client
+sentence-transformers # Free local embeddings
+
+# --- Web Interface & Environment ---
+streamlit             # The web UI
+python-dotenv         # Secret management
+pandas                # Data handling
+requests              # For API calls

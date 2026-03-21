@@ -39,8 +39,10 @@ The system follows a standard RAG pattern: **Ingestion** (Vectorizing reviews), 
 
 ### **1. Clone & Setup**
 ```bash
-git clone [repository-url]
+git clone https://github.com/COMP-4400-RateMyProfAISummarizer/RateMyProfAISummarizer.git
 cd RateMyProfAISummarizer
+python3 -m venv comp4400.venv
+source comp4400.venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -49,7 +51,7 @@ We use a `.env` file to manage private API keys. **Never commit your `.env` file
 1. Copy the template: `cp .env.example .env`
 2. Open `.env` and paste your specific keys:
    * `PINECONE_API_KEY`
-   * `OLLAMA_API_KEY`
+   * `CLOUD_API_KEY`
 
 ### **3. Running the Pipeline**
 1. **Ingest Data:** `python ingestion/upload_to_pinecone.py`
@@ -58,16 +60,19 @@ We use a `.env` file to manage private API keys. **Never commit your `.env` file
 ---
 
 ## 🛠️ Tech Stack
-* **LLM:** Llama 3 / GPT-4
+* **LLM:** Google Gemini 3 Flash (Preview)
+* **Embeddings**: sentence-transformers/all-MiniLM-L6-v2 (Local/Free)
 * **Orchestration:** LangChain (LCEL)
 * **Vector DB:** Pinecone
 * **Interface:** Streamlit
-* **Embedding Model:** `text-embedding-3-small`
+* **CI/CD:** GitHub Actions
 
 ---
 
 ## 📝 Metadata Contract (Internal Use)
 To ensure the **Data** and **Retrieval** parts connect, all vectors must use the following keys:
 * `prof_name`: Full name of the instructor.
-* `course_code`: e.g., COMP-3710.
-* `review_text`: The raw student feedback.
+* `dept`: Academic department at UWindsor.
+* `avg_rating`: Numerical score (1-5).
+* `would_take_again`: Percentage feedback.
+* `avg_difficulty`: Numerical score (1-5).

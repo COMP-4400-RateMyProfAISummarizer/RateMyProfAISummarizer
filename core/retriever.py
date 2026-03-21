@@ -15,7 +15,8 @@ def analyze_professor(prof_name):
     # 2. Connect to Pinecone
     vector_store = PineconeVectorStore(
         index_name=os.getenv("PINECONE_INDEX_NAME"), 
-        embedding=embeddings
+        embedding=embeddings,
+        pinecone_api_key=os.getenv("PINECONE_API_KEY")
     )
 
     # 3. Retrieval with Metadata Filtering
@@ -29,9 +30,15 @@ def analyze_professor(prof_name):
     if not results:
         print(f"❌ No data found for '{prof_name}'. Check your spelling or Pinecone index.")
         return
-
+    
     # 4. Extract Stats from Metadata (Step C requirement)
     meta = results[0].metadata
+    
+    # Check if the stats are N/A - we can skip the LLM or give it a hint
+    if meta.get('avg_rating') == "N/A":
+        print("❗️Note: This professor currently has no ratings on RateMyProfessors.")
+        return
+    
     print(f"\n📊 --- {prof_name} ({meta.get('dept', 'UWindsor')}) ---")
     print(f"⭐ Quality: {meta.get('avg_rating')}/5")
     print(f"🔄 Would Take Again: {meta.get('would_take_again')}")
@@ -69,8 +76,14 @@ def analyze_professor(prof_name):
     # 8. Run the Chain
     formatted_prompt = prompt.format(professor=prof_name, context=context_text)
     response = llm.invoke(formatted_prompt)
-    
-    print(response.content)
+
+    # This handles both plain strings and the "list of dicts" format
+    if isinstance(response.content, list):
+        final_text = response.content[0].get('text', '')
+    else:
+        final_text = response.content
+
+    print(final_text)
 
 if __name__ == "__main__":
     # Check if we are running in a "test mode" or automated environment
@@ -81,7 +94,6 @@ if __name__ == "__main__":
         try:
             name = input("\n🔍 Enter Professor Name (e.g., Ziad Kobti): ")
         except EOFError:
-            # Fallback if someone forgets the flag on a server
-            name = "Ziad Kobti"
+            print("⚠️ No input detected.")
 
     analyze_professor(name)

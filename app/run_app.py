@@ -5,7 +5,6 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import CrossEncoder
 
-# Import your teammate's logic
 from core.summarizer import generate_summary
 
 load_dotenv()
@@ -19,7 +18,6 @@ vector_db = PineconeVectorStore(
 )
 
 # 2. Setup the "Reranker" (The quality filter)
-# This model is small and runs for free on your Mac
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
 # 3. Setup the "AI" (Gemini)
@@ -36,11 +34,20 @@ def main():
     
     result = generate_summary(query, prof_name, vector_db, reranker, llm)
 
-    print("\n" + "="*50)
-    print(f"🎓 SUMMARY FOR {prof_name}")
-    print("="*50)
+    if result["sources"]:
+        # Grab metadata from the first retrieved source
+        meta = result["sources"][0] 
+        print(f"\n📊 --- {prof_name} ({meta.get('dept', 'UWindsor')}) ---")
+        print(f"⭐ Quality: {meta.get('avg_rating', 'N/A')}/5")
+        print(f"🔄 Would Take Again: {meta.get('would_take_again', 'N/A')}")
+        print(f"📈 Difficulty: {meta.get('avg_difficulty', 'N/A')}/5")
+        print("-" * 40)
+    # -----------------------------
+
+    print(f"\n🎓 SUMMARY FOR {prof_name}")
+    print("=" * 40)
     
-    # Check if summary is a list (multimodal format) or a string
+    # Clean output handling
     summary = result["summary"]
     if isinstance(summary, list):
         print(summary[0].get('text', 'No text found.'))

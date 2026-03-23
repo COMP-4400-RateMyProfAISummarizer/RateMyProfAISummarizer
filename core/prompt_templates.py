@@ -2,6 +2,7 @@ def build_summary_prompt(prof_name, reviews):
     if not reviews:
         return "No review data available for this professor."
     
+    # Joining the top 5 reranked reviews
     context = "\n\n---\n\n".join([r["text"] for r in reviews])
 
     prompt = f"""
@@ -12,11 +13,22 @@ Use ONLY the provided student reviews below to answer. Do not use outside knowle
 Student reviews for {prof_name}:
 {context}
 
-Summarize the reviews into the following categories:
+---
+### ⚖️ QUICK COMPARISON
+**PROS:**
+* (Bullet points of the most positive aspects mentioned)
 
-1. Grading Style:
-2. Workload:
-3. Overall Vibe:
+**CONS:**
+* (Bullet points of the most common complaints or challenges)
+
+---
+### 📝 DETAILED ANALYSIS
+1. **Grading Style:** (Summarize how they grade and provide feedback)
+2. **Workload:** (Summarize the volume of assignments, readings, and exams)
+3. **Overall Vibe:** (Summarize the classroom atmosphere and communication style)
+
+### 🏁 FINAL VERDICT
+(A one-sentence recommendation for a student considering this professor)
 
 Each summary should be based only on the provided reviews.
 

@@ -25,7 +25,7 @@ reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
 # 3. Setup the "AI" (Gemini)
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
+    model="gemini-3-flash-preview", 
     google_api_key=os.getenv("CLOUD_API_KEY")
 )
 
@@ -33,16 +33,20 @@ def main():
     print("--- UWindsor RateMyProf RAG System ---")
 
     while True:
-        user_input = input("\n🔍 Enter Professor Name: ").strip()
+        raw_input = input("\n🔍 Enter Professor Name: ").strip()
         
         # Validation 1: Empty or Null input -> RE-PROMPT
-        if not user_input:
+        if not raw_input:
             print("⚠️ Error: Please enter a name.")
             continue
 
         # Exit command
-        if user_input.lower() == 'exit':
+        if raw_input.lower() == 'exit':
             break
+
+        # --- CASE INSENSITIVITY FIX ---
+        # Converts 'ziad kobti' to 'Ziad Kobti' to match DB metadata
+        user_input = raw_input.title()
 
         # Validation 2: Check if professor exists in Vector DB
         results = vector_db.similarity_search("placeholder", k=1, filter={"prof_name": user_input})
@@ -71,7 +75,7 @@ def main():
         if not has_ratings or "No detailed student reviews" in results[0].page_content:
             print(f"\n❗️ NOTE: There are currently no ratings or reviews for {prof_name} on RateMyProfessors.")
             print("Check back later or consult the department syllabus for more info.")
-            return # Exit program
+            return 
 
         # Case B: Prof exists and has reviews -> ANALYZE THEN EXIT
         print(f"🧠 Analyzing reviews for {prof_name}...")
@@ -89,7 +93,6 @@ def main():
         except Exception as e:
             print(f"❌ An error occurred during analysis: {e}")
         
-        # Exit program after showing results
         return 
 
 if __name__ == "__main__":

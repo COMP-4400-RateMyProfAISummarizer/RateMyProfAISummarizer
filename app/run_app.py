@@ -1,19 +1,22 @@
 import os
 import sys
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import CrossEncoder
+from langchain_ollama import ChatOllama
+import time
 
-# Ensure 'core' is visible if running from the app folder
+# Import your Task 1 logic
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.embeddings_manager import get_embeddings
 from core.summarizer import generate_summary
 
 load_dotenv()
 
-# 1. Setup the "Memory" (Pinecone)
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+# 1. Setup Local Embeddings & Vector DB
+# Using the function you created in core/embeddings_manager.py
+embeddings = get_embeddings()
+
 vector_db = PineconeVectorStore(
     index_name=os.getenv("PINECONE_INDEX_NAME"),
     embedding=embeddings,
@@ -23,45 +26,41 @@ vector_db = PineconeVectorStore(
 # 2. Setup the "Reranker"
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
-# 3. Setup the "AI" (Gemini)
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3-flash-preview", 
-    google_api_key=os.getenv("CLOUD_API_KEY")
+# 3. Initialize Local LLM (Llama 3.1)
+print("🦙 Connecting to local Llama instance...")
+llm = ChatOllama(
+    model="llama3.1",
+    temperature=0, 
 )
 
 def main():
-    print("--- UWindsor RateMyProf RAG System ---")
+    print("\n--- UWindsor RateMyProf RAG System (LOCAL) ---")
 
     while True:
         raw_input = input("\n🔍 Enter Professor Name: ").strip()
         
-        # Validation 1: Empty or Null input -> RE-PROMPT
         if not raw_input:
             print("⚠️ Error: Please enter a name.")
             continue
 
-        # Exit command
         if raw_input.lower() == 'exit':
             break
 
-        # --- CASE INSENSITIVITY FIX ---
-        # Converts 'ziad kobti' to 'Ziad Kobti' to match DB metadata
+        # Case-insensitivity fix
         user_input = raw_input.title()
 
-        # Validation 2: Check if professor exists in Vector DB
+        # Check for existence in Pinecone
         results = vector_db.similarity_search("placeholder", k=1, filter={"prof_name": user_input})
         
-        # Prof does not exist -> RE-PROMPT
         if not results:
             print(f"❌ No data found for '{user_input}'. Check spelling and try again.")
             continue
 
-        # --- PROFESSOR FOUND: EXITING AFTER THIS BLOCK ---
         meta = results[0].metadata
         prof_name = meta.get('prof_name', user_input)
         has_ratings = meta.get('avg_rating') != "N/A"
 
-        # Display Header
+        # Display Stats
         if has_ratings:
             print(f"\n📊 --- {prof_name} ({meta.get('dept', 'UWindsor')}) ---")
             print(f"⭐ Quality: {meta.get('avg_rating')}/5")
@@ -71,24 +70,29 @@ def main():
         else:
             print(f"\nℹ️  Profile Found: {prof_name} ({meta.get('dept', 'UWindsor')})")
 
-        # Case A: Prof exists but no ratings/reviews -> EXIT
+        # Short-circuit for empty profiles
         if not has_ratings or "No detailed student reviews" in results[0].page_content:
             print(f"\n❗️ NOTE: There are currently no ratings or reviews for {prof_name} on RateMyProfessors.")
-            print("Check back later or consult the department syllabus for more info.")
             return 
 
-        # Case B: Prof exists and has reviews -> ANALYZE THEN EXIT
-        print(f"🧠 Analyzing reviews for {prof_name}...")
+        # Proceed to Local AI Analysis
+        print(f"🧠 Local Llama is analyzing reviews for {prof_name}...")
         query = f"What is the grading style, workload, and overall vibe for {prof_name}?"
         
         try:
-            result = generate_summary(query, prof_name, vector_db, reranker, llm)
-            print(f"\n🎓 AI SUMMARY FOR {prof_name}")
-            print("=" * 40)
+            start_time = time.time() # Start Benchmark
             
-            summary = result["summary"]
-            print(summary[0].get('text') if isinstance(summary, list) else summary)
-            print("\n📚 SOURCES USED:", len(result["sources"]))
+            result = generate_summary(query, prof_name, vector_db, reranker, llm)
+            
+            end_time = time.time() # End Benchmark
+            inference_duration = end_time - start_time
+
+            print(f"\n🎓 AI SUMMARY (LOCAL MODEL)")
+            print("=" * 40)
+            print(result["summary"])
+            print("-" * 40)
+            print(f"⏱️  Inference Time: {inference_duration:.2f} seconds") # <--- Engineering Metric
+            print(f"📚 Sources Used: {len(result['sources'])}")
             
         except Exception as e:
             print(f"❌ An error occurred during analysis: {e}")

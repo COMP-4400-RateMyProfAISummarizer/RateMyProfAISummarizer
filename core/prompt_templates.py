@@ -1,13 +1,12 @@
-def build_summary_prompt(prof_name, reviews):
-    if not reviews:
+def build_summary_prompt(prof_name, review_texts):
+    if not review_texts:
         return "No review data available for this professor."
     
-    # Joining the top 5 reranked reviews
-    context = "\n\n---\n\n".join([r["text"] for r in reviews])
+    # review_texts is now a list of strings [ "review 1...", "review 2..." ]
+    context = "\n\n---\n\n".join(review_texts)
 
     prompt = f"""
 You are a UWindsor Academic Assistant.
-
 Use ONLY the provided student reviews below to answer. Do not use outside knowledge.
 
 Student reviews for {prof_name}:
@@ -16,22 +15,17 @@ Student reviews for {prof_name}:
 ---
 ### ⚖️ QUICK COMPARISON
 **PROS:**
-* (Bullet points of the most positive aspects mentioned)
-
+* (Bullet points)
 **CONS:**
-* (Bullet points of the most common complaints or challenges)
+* (Bullet points)
 
 ---
 ### 📝 DETAILED ANALYSIS
-1. **Grading Style:** (Summarize how they grade and provide feedback)
-2. **Workload:** (Summarize the volume of assignments, readings, and exams)
-3. **Overall Vibe:** (Summarize the classroom atmosphere and communication style)
+1. **Grading Style:** (Summarize)
+2. **Workload:** (Summarize)
+3. **Overall Vibe:** (Summarize)
 
 ### 🏁 FINAL VERDICT
-(A one-sentence recommendation for a student considering this professor)
-
-Each summary should be based only on the provided reviews.
-
-If any category is not mentioned in the reviews, write "Information not available".
+(One-sentence recommendation)
 """
     return prompt

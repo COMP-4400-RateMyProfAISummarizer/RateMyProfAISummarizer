@@ -53,8 +53,19 @@ def main():
         results = vector_db.similarity_search("placeholder", k=1, filter={"prof_name": user_input})
         
         if not results:
-            print(f"❌ No data found for '{user_input}'. Check spelling and try again.")
-            continue
+            print(f"🔍 '{user_input}' not found. Agent is attempting Fuzzy Name Match...")
+            # Agentic Loop: Try a broader search to find the correct name
+            broad_search = vector_db.similarity_search(user_input, k=3)
+            
+            if broad_search:
+                suggested = broad_search[0].metadata.get('prof_name')
+                print(f"🔄 Loop found a match: '{suggested}'")
+                
+                user_input = suggested
+                results = vector_db.similarity_search("placeholder", k=1, filter={"prof_name": user_input})
+            else:
+                print("❌ No matching professors found.")
+                continue
 
         meta = results[0].metadata
         prof_name = meta.get('prof_name', user_input)

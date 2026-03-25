@@ -230,4 +230,4 @@ Thumbs.db           # For Windows users on the team
 # --- PDF/Office Docs (The "Sources") ---
 # If you have a folder full of UWindsor PDFs to read, don't push them all
 /data/raw/
-/data/processed/
+/data/processed/.vs/ 

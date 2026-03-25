@@ -3,8 +3,9 @@ import sys
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain_google_genai import ChatGoogleGenerativeAI
+from core.local_llm import get_local_llm
 from sentence_transformers import CrossEncoder
+from core.embeddings_manager import get_embeddings
 
 # Ensure 'core' is visible if running from the app folder
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -13,7 +14,7 @@ from core.summarizer import generate_summary
 load_dotenv()
 
 # 1. Setup the "Memory" (Pinecone)
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = get_embeddings()
 vector_db = PineconeVectorStore(
     index_name=os.getenv("PINECONE_INDEX_NAME"),
     embedding=embeddings,
@@ -24,10 +25,7 @@ vector_db = PineconeVectorStore(
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
 # 3. Setup the "AI" (Gemini)
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3-flash-preview", 
-    google_api_key=os.getenv("CLOUD_API_KEY")
-)
+llm = get_local_llm()
 
 def main():
     print("--- UWindsor RateMyProf RAG System ---")

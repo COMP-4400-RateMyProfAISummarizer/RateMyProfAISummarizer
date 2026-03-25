@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from core.embeddings_manager import get_embeddings
 
 load_dotenv()
 
@@ -46,7 +47,7 @@ class UWindsorScraper:
             return None
 
 def run_verified_ingestion():
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = get_embeddings()
     
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,

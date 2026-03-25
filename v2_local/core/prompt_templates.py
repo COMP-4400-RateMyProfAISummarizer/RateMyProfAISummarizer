@@ -1,19 +1,29 @@
-def build_summary_prompt(prof_name, reviews):
+def build_summary_prompt(prof_name, reviews, query):
     if not reviews:
         return "No review data available for this professor."
     
-    # Joining the top 5 reranked reviews
     context = "\n\n---\n\n".join([r["text"] for r in reviews])
 
-    prompt = f"""
-You are a UWindsor Academic Assistant.
+    # Check if the query is just the generic fallback
+    is_generic = query.startswith("Summarize reviews for")
 
-Use ONLY the provided student reviews below to answer. Do not use outside knowledge.
+    # The Direct Answer is now the first section of the prompt
+    target_section = ""
+    if not is_generic:
+        target_section = f"""
+### 🎯 DIRECT ANSWER
+**Question:** {query}
 
-Student reviews for {prof_name}:
-{context}
+(Provide a clear, 2-3 sentence answer here based on the reviews. If the reviews don't mention this topic, state that information is limited.)
 
 ---
+"""
+
+    prompt = f"""
+You are a UWindsor Academic Assistant. 
+
+{target_section}
+
 ### ⚖️ QUICK COMPARISON
 **PROS:**
 * (Bullet points of the most positive aspects mentioned)
@@ -22,7 +32,7 @@ Student reviews for {prof_name}:
 * (Bullet points of the most common complaints or challenges)
 
 ---
-### 📝 DETAILED ANALYSIS
+### 📝 GENERAL ANALYSIS
 1. **Grading Style:** (Summarize how they grade and provide feedback)
 2. **Workload:** (Summarize the volume of assignments, readings, and exams)
 3. **Overall Vibe:** (Summarize the classroom atmosphere and communication style)
@@ -30,8 +40,13 @@ Student reviews for {prof_name}:
 ### 🏁 FINAL VERDICT
 (A one-sentence recommendation for a student considering this professor)
 
-Each summary should be based only on the provided reviews.
+---
+STUDENT REVIEWS FOR {prof_name}:
+{context}
 
-If any category is not mentioned in the reviews, write "Information not available".
+INSTRUCTIONS:
+- Put the DIRECT ANSWER at the very top if a specific question was asked.
+- Use ONLY the provided reviews.
+- If a category is missing data, write "Information not available."
 """
     return prompt

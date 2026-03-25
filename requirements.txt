@@ -56,7 +56,8 @@ kiwisolver==1.4.9
 langchain-core==1.2.21
 langchain-google-genai==4.2.1
 langchain-huggingface==1.2.1
-langchain-openai==1.1.12
+langchain-ollama==1.0.1
+langchain-openai==1.1.11
 langchain-pinecone==0.2.13
 langsmith==0.7.22
 markdown-it-py==4.0.0
@@ -69,7 +70,8 @@ multidict==6.7.1
 narwhals==2.18.1
 nest-asyncio==1.6.0
 networkx==3.6.1
-numpy==2.4.1
+numpy==2.4.3
+ollama==0.6.1
 openai==2.29.0
 orjson==3.11.7
 packaging==24.2

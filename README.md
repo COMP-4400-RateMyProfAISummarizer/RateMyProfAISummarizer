@@ -1,43 +1,78 @@
-# 🎓 UWindsor Rate My Prof Specialized RAG Agent
-**University of Windsor – Faculty Reviews Analysis System**
+## 🎓 UWindsor RateMyProf Agentic RAG System
+### *University of Windsor – Advanced Faculty Review Analysis*
 
-This project implements a **Retrieval-Augmented Generation (RAG)** pipeline to provide grounded, factual summaries of University of Windsor professor reviews on Rate My Prof. By using specialized AI logic instead of general LLM responses, we eliminate hallucinations and provide direct source attribution for academic planning.
+This project implements an **Agentic Retrieval-Augmented Generation (RAG)** pipeline designed to provide grounded, factual summaries of UWindsor professor reviews. By utilizing **Local Inference**, **Iterative Reasoning**, and **Cross-Encoder Re-ranking**, the system eliminates hallucinations and provides high-precision academic insights for student planning.
 
 ---
 
 ## 🏗️ System Architecture
-The system follows a standard RAG pattern: **Ingestion** (Vectorizing reviews), **Retrieval** (Finding relevant context), and **Generation** (Summarizing with an LLM).
+The system follows a modular agentic workflow to ensure data integrity and reasoning depth:
+1.  **Fuzzy Input Handling:** Automatically corrects partial or misspelled names (e.g., "Ziad" → "Ziad Kobti") via a retrieval loop.
+2.  **Multi-Query Expansion:** Decomposes a single user question into three targeted search vectors (e.g., Grading, Workload, and Classroom Vibe).
+3.  **Hybrid-Style Retrieval:** Uses metadata-filtered Pinecone searches followed by a **Cross-Encoder Re-ranker** to prioritize the most informative snippets.
+4.  **Local Synthesis:** Generates a structured report using an **8-bit Quantized Llama-3.1** model running locally on Ollama.
 
 ---
 
 ## 📂 Project Structure & Team Roles
 
-### **1. Data & Vector Engineering** (`/ingestion`)
-**Assigned to: Aakanksha Mandal**
-* **Goal:** Create the "Memory" of the bot.
+### 1. Data & Vector Engineering (`/ingestion`)
+**Assigned to:** Aakanksha Mandal
+**Goal:** Create the "Memory" of the bot.
 * **Tasks:** * Implement **Semantic Chunking** to keep review context intact.
-    * Manage the **Vector Space** using Pinecone/ChromaDB.
-    * Apply **Metadata Tagging** (`prof_name`, `dept`) for filtered retrieval.
+    * Manage the **Vector Space** using Pinecone.
+    * Apply **Metadata Tagging** (`prof_name`, `dept`, `difficulty`) for filtered retrieval.
 
-### **2. Retrieval Architecture** (`/core`)
-**Assigned to: Noor Haddad**
-* **Goal:** Build the "Brain" and the Summarizer.
+### 2. Retrieval Architecture (`/core`)
+**Assigned to:** Noor Haddad
+**Goal:** Build the "Brain" and the Summarizer.
 * **Tasks:** * Develop **Metadata-filtered Retrieval** logic.
-    * Design **System Prompts** for specialized summarization.
-    * Implement **Source Attribution** to cite specific reviews.
+    * Design **System Prompts** for specialized academic summarization.
+    * Implement **Source Attribution** to cite specific student reviews.
 
-### **3. Ops & Evaluation** (`/app`)
-**Assigned to: Hanan Senah**
-* **Goal:** Deployment and Quality Assurance.
-* **Tasks:** * Serve the model using **Streamlit**.
-    * Manage **LLM Inference** (via Ollama or OpenAI).
+### 3. Ops & Agentic Deployment (`/app`)
+**Assigned to:** Hanan Senah
+**Goal:** Deployment and Quality Assurance.
+* **Tasks:** * Manage **LLM Inference** and application state.
+    * Serve the model and manage user session flow.
     * Conduct **Faithfulness & Relevance** tests to ensure zero hallucinations.
+
+---
+
+## 🛠️ Shared Technical Milestones (Completed by All Members)
+
+Every team member contributed to the core engineering of the following three pillars:
+
+#### **Task 1: The Infrastructure & Local Model Lead**
+*Focus: Local LLM Deployment, Quantization, and Embedding Optimization.*
+- [x] **Local Model Environment:** Set up Ollama to run **Llama-3.1-8B** locally.
+- [x] **Model Quantization:** Implemented **8-bit quantization** (`q8_0`) to ensure high-precision inference on standard laptops.
+- [x] **Embedding Pipeline:** Replaced generic embeddings with the specialized local model **BAAI/bge-small-en-v1.5**.
+- [x] **Performance Benchmarking:** Created scripts to log **Inference Time** as a core "Engineering Metric" for the final report.
+
+#### **Task 2: The Retrieval & Semantic Search Lead**
+*Focus: Advanced Database Logic, Hybrid Search, and Metadata Filtering.*
+- [x] **Hybrid Search Implementation:** Moved beyond simple vector search to handle specific terms like course codes (e.g., "COMP-1410").
+- [x] **Metadata Engineering:** Programmatic filtering by `dept`, `difficulty`, and `prof_name`.
+- [x] **Re-Ranking Layer:** Implemented a **Cross-Encoder** (`ms-marco-MiniLM-L-6-v2`) to re-score results, ensuring only the most relevant reviews reach the LLM.
+- [x] **Data Cleaning:** Scripted a **Deduplication pass** to optimize the AI’s context window.
+
+#### **Task 3: The Agentic Logic & Tool Lead**
+*Focus: Function Calling, Iterative Loops, and Query Expansion.*
+- [x] **Function Calling (Tools):** Wrapped the database search into a LangChain Tool.
+- [x] **Iterative Reasoning (The Loop):** Created a reasoning loop to handle partial name matches (e.g., "Ziad" → "Ziad Kobti").
+- [x] **Query Expansion:** Programmed the agent to turn one user question into three internal targeted searches.
+- [x] **Prompt Engineering & Control:** Developed "If/Then" system logic to manage edge cases and fallback instructions (e.g., "Suggest checking the University Syllabus").
 
 ---
 
 ## 🚀 Getting Started
 
-### **1. Clone & Setup**
+### 1. Prerequisites
+* [Ollama](https://ollama.com/) installed and running.
+* Download the model: `ollama pull llama3.1:8b-instruct-q8_0`
+
+### 2. Setup
 ```bash
 git clone https://github.com/COMP-4400-RateMyProfAISummarizer/RateMyProfAISummarizer.git
 cd RateMyProfAISummarizer
@@ -46,33 +81,24 @@ source comp4400.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### **2. Environment Variables (Security Protocol)**
-We use a `.env` file to manage private API keys. **Never commit your `.env` file to GitHub.**
-1. Copy the template: `cp .env.example .env`
-2. Open `.env` and paste your specific keys:
-   * `PINECONE_API_KEY`
-   * `CLOUD_API_KEY`
+### 3. Environment Variables
+Create a `.env` file in the root directory:
+```env
+PINECONE_API_KEY=your_key_here
+PINECONE_INDEX_NAME=your_index_name
+```
 
-### **3. Running the Pipeline**
-1. **Ingest Data:** `python ingestion/upload_to_pinecone.py`
-2. **Launch App:** `streamlit run app/main.py`
+### 4. Running the Pipeline
+```bash
+# To launch the agentic CLI
+python app/run_app.py
+```
 
 ---
 
 ## 🛠️ Tech Stack
-* **LLM:** Google Gemini 3 Flash (Preview)
-* **Embeddings**: sentence-transformers/all-MiniLM-L6-v2 (Local/Free)
+* **LLM:** Llama-3.1-8B (Local via Ollama)
+* **Embeddings:** BAAI/bge-small-en-v1.5 (Local/HuggingFace)
+* **Reranker:** Cross-Encoder MS-Marco MiniLM
+* **Vector DB:** Pinecone (Serverless)
 * **Orchestration:** LangChain (LCEL)
-* **Vector DB:** Pinecone
-* **Interface:** Streamlit
-* **CI/CD:** GitHub Actions
-
----
-
-## 📝 Metadata Contract (Internal Use)
-To ensure the **Data** and **Retrieval** parts connect, all vectors must use the following keys:
-* `prof_name`: Full name of the instructor.
-* `dept`: Academic department at UWindsor.
-* `avg_rating`: Numerical score (1-5).
-* `would_take_again`: Percentage feedback.
-* `avg_difficulty`: Numerical score (1-5).

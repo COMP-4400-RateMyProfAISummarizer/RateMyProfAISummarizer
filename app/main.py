@@ -24,35 +24,47 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* Main background adjustment */
     .stApp {
-        background-color: #f5f7fb;
+        background-color: var(--background-color);
     }
 
-    h1 {
-        text-align: center;
-        width: 100%;
-        margin-bottom: 0.2rem;
+    /* Force Title and Text Visibility */
+    h1, h2, h3, p, span, label {
+        color: var(--text-color) !important;
     }
 
+    /* Style the Input Boxes for better contrast */
+    .stTextInput div[data-baseweb="input"], 
+    .stTextArea div[data-baseweb="base-input"] {
+        background-color: var(--secondary-background-color) !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px;
+    }
+
+    /* Professional Metric Cards */
     .metric-card {
-        background-color: white;
+        background-color: var(--secondary-background-color);
         padding: 14px 18px;
         border-radius: 12px;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.06);
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
         margin-bottom: 10px;
+        border: 1px solid rgba(128, 128, 128, 0.2);
     }
 
+    /* Source Cards with subtle border */
     .source-card {
-        background-color: white;
+        background-color: var(--secondary-background-color);
         padding: 16px;
         border-radius: 12px;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.06);
         margin-bottom: 14px;
-        border-left: 5px solid #cbd5e1;
+        border-left: 5px solid #3182ce; /* UWindsor Blue accent */
+        color: var(--text-color);
     }
 
     .small-note {
-        color: #6b7280;
+        color: #a0aec0;
         font-size: 0.92rem;
         margin-bottom: 0.8rem;
     }

@@ -3,7 +3,7 @@ from langchain_ollama import ChatOllama
 
 def get_local_llm():
     return ChatOllama(
-        model="llama3.2:3b",
+        model="llama3.2:1b",
         temperature=0.2
     )
 

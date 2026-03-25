@@ -5,7 +5,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from sentence_transformers import CrossEncoder
 
 # Allow access to core folder
@@ -89,9 +89,9 @@ def init_components():
 
     reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-3-flash-preview",
-        google_api_key=os.getenv("CLOUD_API_KEY")
+    llm = ChatOllama(
+        model="llama3",
+        temperature=0.2
     )
 
     return vector_db, reranker, llm

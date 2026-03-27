@@ -1,17 +1,19 @@
 import os
 import sys
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, REPO_ROOT)
+
 import time
 import streamlit as st
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain_ollama import ChatOllama
 from sentence_transformers import CrossEncoder
 
-# Allow access to core folder
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.summarizer import generate_summary
-from core.retriever import retrieve_reviews
+from v2_local.core.local_llm import get_local_llm
+from v2_local.core.embeddings_manager import get_embeddings
+from v2_local.core.summarizer import generate_summary
+from v2_local.core.retriever import retrieve_reviews
 
 load_dotenv()
 
@@ -79,7 +81,7 @@ st.write("Ask a question about a UWindsor professor based on student reviews.")
 
 @st.cache_resource
 def init_components():
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = get_embeddings()
 
     vector_db = PineconeVectorStore(
         index_name=os.getenv("PINECONE_INDEX_NAME"),
@@ -89,10 +91,7 @@ def init_components():
 
     reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
-    llm = ChatOllama(
-        model="llama3",
-        temperature=0.2
-    )
+    llm = get_local_llm()
 
     return vector_db, reranker, llm
 

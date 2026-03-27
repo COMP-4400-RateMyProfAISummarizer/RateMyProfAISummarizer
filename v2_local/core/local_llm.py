@@ -2,6 +2,7 @@ import time
 from langchain_ollama import ChatOllama
 
 def get_local_llm():
+    # Using Ollama llama3.2:1b GGUF quantized model for efficient local inference on standard hardware
     return ChatOllama(
         model="llama3.2:1b",
         temperature=0.2

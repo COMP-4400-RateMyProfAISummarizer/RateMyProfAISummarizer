@@ -1,5 +1,5 @@
-from core.retriever import retrieve_reviews
-from core.prompt_templates import build_summary_prompt
+from v2_local.core.retriever import retrieve_reviews
+from v2_local.core.prompt_templates import build_summary_prompt
 from langchain_core.runnables import RunnableLambda
 
 def generate_summary(query, prof_name, vector_db, reranker, llm):

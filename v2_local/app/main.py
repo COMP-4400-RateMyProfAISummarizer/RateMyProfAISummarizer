@@ -12,8 +12,8 @@ from sentence_transformers import CrossEncoder
 
 from v2_local.core.local_llm import get_local_llm
 from v2_local.core.embeddings_manager import get_embeddings
-from v2_local.core.summarizer import generate_summary
 from v2_local.core.retriever import retrieve_reviews
+from v2_local.core.agent import build_agent, find_best_prof_name, build_search_tool
 
 load_dotenv()
 
@@ -93,7 +93,8 @@ def init_components():
 
     llm = get_local_llm()
 
-    return vector_db, reranker, llm
+    agent = build_agent(llm, vector_db, reranker)
+    return vector_db, reranker, llm, agent
 
 
 def render_metric_card(title: str, value: str):
@@ -107,8 +108,7 @@ def render_metric_card(title: str, value: str):
         unsafe_allow_html=True
     )
 
-
-vector_db, reranker, llm = init_components()
+vector_db, reranker, llm, agent = init_components()
 
 prof_name_input = st.text_input("Professor name", placeholder="e.g. Ziad Kobti")
 query_input = st.text_area(
@@ -124,17 +124,19 @@ if st.button("Generate Summary"):
     else:
         user_input = raw_input.title()
 
-        results = vector_db.similarity_search(
-            "placeholder",
-            k=1,
-            filter={"prof_name": user_input}
-        )
+        resolved_name = find_best_prof_name(user_input, vector_db)
 
-        if not results:
+        if not resolved_name:
             st.error(f"No data found for '{user_input}'. Check spelling and try again.")
         else:
+            results = vector_db.similarity_search(
+                "placeholder",
+                k=1,
+                filter={"prof_name": resolved_name}
+            )
+
             meta = results[0].metadata
-            prof_name = meta.get("prof_name", user_input)
+            prof_name = meta.get("prof_name", resolved_name)
             has_ratings = meta.get("avg_rating") != "N/A"
 
             st.subheader(f"📊 {prof_name} ({meta.get('dept', 'UWindsor')})")
@@ -161,8 +163,35 @@ if st.button("Generate Summary"):
                 start_time = time.time()
 
                 try:
-                    result = generate_summary(query, prof_name, vector_db, reranker, llm)
+                    agent_input = (
+                        f"Professor name: {prof_name}\n"
+                        f"User question: {query}\n"
+                        "Use the search_uwindsor_reviews tool before answering."
+                    )
+                    
+                    tool_obj = build_search_tool(vector_db, reranker)
+
+                    tool_result = tool_obj.invoke({
+                        "prof_name": prof_name,
+                        "question": query
+                    })
+
+                    summary_prompt = f"""
+                    You are a UWindsor RateMyProf assistant.
+
+                    Use only the review data below.
+                    Do not invent details.
+                    Summarize clearly in plain English.
+                    If evidence is mixed, say so.
+
+                    Review data:
+                    {tool_result}
+                    """
+                    response = llm.invoke(summary_prompt)
+                    summary_text = response.content if hasattr(response, "content") else str(response)
+
                     retrieved_reviews = retrieve_reviews(query, prof_name, vector_db, reranker)
+
                     end_time = time.time()
 
                     seen_texts = set()
@@ -177,11 +206,7 @@ if st.button("Generate Summary"):
                     tab1, tab2 = st.tabs(["Summary", "Sources"])
 
                     with tab1:
-                        summary = result["summary"]
-                        if isinstance(summary, list):
-                            st.write(summary[0].get("text"))
-                        else:
-                            st.write(summary)
+                        st.write(summary_text)
 
                     with tab2:
                         st.markdown(

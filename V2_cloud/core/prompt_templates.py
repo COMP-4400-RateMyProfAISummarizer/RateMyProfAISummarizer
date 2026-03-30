@@ -1,58 +1,94 @@
-def create_summary_prompt(professor_name, review_list, user_query):
-
-    # If no reviews exist, return fallback message
+def build_summary_prompt(professor_name, review_list, user_query):
     if not review_list:
         return "No review data available for this professor."
     
-    # Combine all review texts into one formatted context block
-    combined_reviews = "\n\n---\n\n".join([item["text"] for item in review_list])
 
-    # Check if query is generic (default system query)
+    combined_reviews = "\n\n---\n\n".join([item["text"] for item in review_list])
     is_default_query = user_query.startswith("Summarize reviews for")
 
-    # Optional section: direct answer (only if user asked a custom question)
-    direct_answer_block = ""
-    if not is_default_query:
-        direct_answer_block = f"""
-### 🎯 DIRECT ANSWER
-**Question:** {user_query}
-(Answer the question in 2-3 sentences based on reviews.)
+    if is_default_query:
+        final_prompt = f"""
+You are a UWindsor Academic Assistant.
 
-|||
-"""
+Use ONLY the reviews below.
+Do NOT invent details.
+Be specific and detailed.
 
-    # Final prompt template
-    final_prompt = f"""
-You are a UWindsor Academic Assistant. 
+Return your answer in exactly this format:
 
-{direct_answer_block}
-
----
 ### ⚖️ QUICK COMPARISON
 **PROS:**
-* (Bullet points of the most positive aspects mentioned)
+- bullet
+- bullet
+- bullet
 
 **CONS:**
-* (Bullet points of the most common complaints or challenges)
+- bullet
+- bullet
 
----
 ### 📝 DETAILED ANALYSIS
-1. **Grading Style:** (Summarize how they grade and provide feedback)
-2. **Workload:** (Summarize the volume of assignments, readings, and exams)
-3. **Overall Vibe:** (Summarize the classroom atmosphere and communication style)
+1. **Grading Style:** ...
+2. **Workload:** ...
+3. **Overall Vibe:** ...
 
 ### 🏁 FINAL VERDICT
-(A one-sentence recommendation for a student considering this professor)
+...
 
----
+Rules:
+- Write 3 to 5 pros if enough evidence exists.
+- Write 2 to 5 cons if enough evidence exists.
+- If no strong negatives are supported, write: "No major complaints were consistently mentioned in the provided reviews."
+- If a section lacks enough information, write: "Information not available."
+- Do NOT include the text "REVIEWS FOR" in the final answer.
+
 REVIEWS FOR {professor_name}:
 {combined_reviews}
+"""
+    else:
+        final_prompt = f"""
+You are a UWindsor Academic Assistant.
 
-INSTRUCTIONS:
-- If a question was asked, you MUST place '|||' on its own line after the Direct Answer.
-- DO NOT include the "STUDENT REVIEWS" or "REVIEWS FOR..." text in your final output.
-- Use ONLY the provided reviews.
-- If a category is missing data, write "Information not available."
+Use ONLY the reviews below.
+Do NOT invent details.
+Be specific and detailed.
+
+Return your answer in exactly this format:
+
+### 🎯 DIRECT ANSWER
+Answer this question in 2-3 specific sentences: {user_query}
+
+|||
+
+### ⚖️ QUICK COMPARISON
+**PROS:**
+- bullet
+- bullet
+- bullet
+
+**CONS:**
+- bullet
+- bullet
+
+### 📝 DETAILED ANALYSIS
+1. **Grading Style:** ...
+2. **Workload:** ...
+3. **Overall Vibe:** ...
+
+### 🏁 FINAL VERDICT
+...
+
+Rules:
+- The line ||| must appear exactly once, on its own line, after the direct answer.
+- Answer the question directly first.
+- Write 3 to 5 pros if enough evidence exists.
+- Write 2 to 5 cons if enough evidence exists.
+- If no strong negatives are supported, write: "No major complaints were consistently mentioned in the provided reviews."
+- If the reviews do not fully answer the question, say so clearly.
+- If a section lacks enough information, write: "Information not available."
+- Do NOT include the text "REVIEWS FOR" in the final answer.
+
+REVIEWS FOR {professor_name}:
+{combined_reviews}
 """
 
     return final_prompt

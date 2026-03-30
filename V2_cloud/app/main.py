@@ -62,7 +62,7 @@ html, body, [class*="css"] {
 /* Main width */
 .block-container {
     max-width: 1120px !important;
-    padding-top: 2.2rem !important;
+    padding-top: 4.2rem !important;
     padding-bottom: 3rem !important;
     padding-left: 3rem !important;
     padding-right: 3rem !important;
@@ -187,7 +187,7 @@ h1, h2, h3, h4 {
     font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    color: white !important;
+    color: #ffffff !important;
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%) !important;
     box-shadow:
         0 10px 26px rgba(79, 70, 229, 0.18),
@@ -195,12 +195,31 @@ h1, h2, h3, h4 {
     transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease !important;
 }
 
+/* Force inner button text to stay white */
+.stButton > button *,
+.stButton > button span,
+.stButton > button p,
+.stButton > button div {
+    color: #ffffff !important;
+}
+
+/* Hover */
 .stButton > button:hover {
     transform: translateY(-2px) scale(1.01) !important;
     filter: brightness(1.04) !important;
+    color: #ffffff !important;
     box-shadow:
         0 16px 34px rgba(79, 70, 229, 0.22),
+        0 0 18px rgba(99, 102, 241, 0.22),
         inset 0 1px 0 rgba(255,255,255,0.16) !important;
+}
+
+/* Keep text white on hover too */
+.stButton > button:hover *,
+.stButton > button:hover span,
+.stButton > button:hover p,
+.stButton > button:hover div {
+    color: #ffffff !important;
 }
 
 .stButton > button:active {

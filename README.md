@@ -17,23 +17,26 @@ The system follows a modular agentic workflow to ensure data integrity and reaso
 ## 📂 Project Structure & Team Roles
 
 ### 1. Data & Vector Engineering (`/ingestion`)
-**Assigned to:** Aakanksha Mandal
-**Goal:** Create the "Memory" of the bot.
-* **Tasks:** * Implement **Semantic Chunking** to keep review context intact.
+* **Assigned to:** Aakanksha Mandal
+* **Goal:** Create the "Memory" of the bot.
+* **Tasks:**
+    * Implement **Semantic Chunking** to keep review context intact.
     * Manage the **Vector Space** using Pinecone.
     * Apply **Metadata Tagging** (`prof_name`, `dept`, `difficulty`) for filtered retrieval.
 
 ### 2. Retrieval Architecture (`/core`)
-**Assigned to:** Noor Haddad
-**Goal:** Build the "Brain" and the Summarizer.
-* **Tasks:** * Develop **Metadata-filtered Retrieval** logic.
+* **Assigned to:** Noor Haddad
+* **Goal:** Build the "Brain" and the Summarizer.
+* **Tasks:**
+    * Develop **Metadata-filtered Retrieval** logic.
     * Design **System Prompts** for specialized academic summarization.
     * Implement **Source Attribution** to cite specific student reviews.
 
 ### 3. Ops & Agentic Deployment (`/app`)
-**Assigned to:** Hanan Senah
-**Goal:** Deployment and Quality Assurance.
-* **Tasks:** * Manage **LLM Inference** and application state.
+* **Assigned to:** Hanan Senah
+* **Goal:** Deployment and Quality Assurance.
+* **Tasks:**
+    * Manage **LLM Inference** and application state.
     * Serve the model and manage user session flow.
     * Conduct **Faithfulness & Relevance** tests to ensure zero hallucinations.
 
@@ -76,8 +79,8 @@ Every team member contributed to the core engineering of the following three pil
 ```bash
 git clone https://github.com/COMP-4400-RateMyProfAISummarizer/RateMyProfAISummarizer.git
 cd RateMyProfAISummarizer
-python3 -m venv comp4400.venv
-source comp4400.venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 

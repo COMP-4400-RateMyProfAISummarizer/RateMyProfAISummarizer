@@ -91,10 +91,10 @@ PINECONE_API_KEY=your_key_here
 PINECONE_INDEX_NAME=your_index_name
 ```
 
-### 4. Running the Pipeline
+### 4. Running the Code
 ```bash
-# To launch the agentic CLI
-python app/run_app.py
+# To run the streamlit app, navigate to either v1_cloud or v2_local folder and run the following command
+streamlit run app/main.py
 ```
 
 ---

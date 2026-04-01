@@ -1,37 +1,94 @@
-def build_summary_prompt(prof_name, reviews):
-    if not reviews:
+def build_summary_prompt(professor_name, review_list, user_query):
+    if not review_list:
         return "No review data available for this professor."
     
-    # Joining the top 5 reranked reviews
-    context = "\n\n---\n\n".join([r["text"] for r in reviews])
 
-    prompt = f"""
+    combined_reviews = "\n\n---\n\n".join([item["text"] for item in review_list])
+    is_default_query = user_query.startswith("Summarize reviews for")
+
+    if is_default_query:
+        final_prompt = f"""
 You are a UWindsor Academic Assistant.
 
-Use ONLY the provided student reviews below to answer. Do not use outside knowledge.
+Use ONLY the reviews below.
+Do NOT invent details.
+Be specific and detailed.
 
-Student reviews for {prof_name}:
-{context}
+Return your answer in exactly this format:
 
----
 ### ⚖️ QUICK COMPARISON
 **PROS:**
-* (Bullet points of the most positive aspects mentioned)
+- bullet
+- bullet
+- bullet
 
 **CONS:**
-* (Bullet points of the most common complaints or challenges)
+- bullet
+- bullet
 
----
 ### 📝 DETAILED ANALYSIS
-1. **Grading Style:** (Summarize how they grade and provide feedback)
-2. **Workload:** (Summarize the volume of assignments, readings, and exams)
-3. **Overall Vibe:** (Summarize the classroom atmosphere and communication style)
+1. **Grading Style:** ...
+2. **Workload:** ...
+3. **Overall Vibe:** ...
 
 ### 🏁 FINAL VERDICT
-(A one-sentence recommendation for a student considering this professor)
+...
 
-Each summary should be based only on the provided reviews.
+Rules:
+- Write 3 to 5 pros if enough evidence exists.
+- Write 2 to 5 cons if enough evidence exists.
+- If no strong negatives are supported, write: "No major complaints were consistently mentioned in the provided reviews."
+- If a section lacks enough information, write: "Information not available."
+- Do NOT include the text "REVIEWS FOR" in the final answer.
 
-If any category is not mentioned in the reviews, write "Information not available".
+REVIEWS FOR {professor_name}:
+{combined_reviews}
 """
-    return prompt
+    else:
+        final_prompt = f"""
+You are a UWindsor Academic Assistant.
+
+Use ONLY the reviews below.
+Do NOT invent details.
+Be specific and detailed.
+
+Return your answer in exactly this format:
+
+### 🎯 DIRECT ANSWER
+Answer this question in 2-3 specific sentences: {user_query}
+
+|||
+
+### ⚖️ QUICK COMPARISON
+**PROS:**
+- bullet
+- bullet
+- bullet
+
+**CONS:**
+- bullet
+- bullet
+
+### 📝 DETAILED ANALYSIS
+1. **Grading Style:** ...
+2. **Workload:** ...
+3. **Overall Vibe:** ...
+
+### 🏁 FINAL VERDICT
+...
+
+Rules:
+- The line ||| must appear exactly once, on its own line, after the direct answer.
+- Answer the question directly first.
+- Write 3 to 5 pros if enough evidence exists.
+- Write 2 to 5 cons if enough evidence exists.
+- If no strong negatives are supported, write: "No major complaints were consistently mentioned in the provided reviews."
+- If the reviews do not fully answer the question, say so clearly.
+- If a section lacks enough information, write: "Information not available."
+- Do NOT include the text "REVIEWS FOR" in the final answer.
+
+REVIEWS FOR {professor_name}:
+{combined_reviews}
+"""
+
+    return final_prompt

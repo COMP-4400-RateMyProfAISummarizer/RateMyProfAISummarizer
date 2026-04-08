@@ -14,6 +14,11 @@ The system follows a modular agentic workflow to ensure data integrity and reaso
 
 ---
 
+## 📺 Demo
+Check out the system in action: https://www.youtube.com/watch?v=1cAJ8rb8KzY
+
+---
+
 ## 📂 Project Structure & Team Roles
 
 ### 1. Data & Vector Engineering (`/ingestion`)
